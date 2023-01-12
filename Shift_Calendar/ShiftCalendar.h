@@ -43,6 +43,7 @@ private slots:
     void add_line();                // 行を追加する関数.
     void return_dialog();           // ダイアログをOKで終了した際に呼ばれる関数.
     void on_auto_input_Button_clicked();
+    void on_pushButton_2_clicked();
 
 private:
     Ui::Shift_Calendar *ui;
@@ -55,8 +56,8 @@ private:
     QStringList header_vertical;        // 行のラベルを保持する文字列リスト.
     PropertyDialog *dialog = new PropertyDialog;    // プロパティ入力ダイアログ.
     QVector<member_data> ST_memdata_list;
-    QPushButton *button;
-    QString shift_list[3];
+    QString shift_list[3];      // シフトの基本勤務時間(dialog左の入力欄)の文字列.
+    int shift_num[3] = {0};           // シフトの各勤務時間における必要人数.
     // ==== 関数 ====
     void update_calendar();             // カレンダーの表示を更新する関数.
     void update_property();             // プロパティボタンが押された際に戻る関数.

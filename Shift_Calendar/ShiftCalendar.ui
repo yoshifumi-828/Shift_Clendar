@@ -39,6 +39,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>年</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QComboBox" name="month_Box">
        <item>
         <property name="text">
@@ -100,6 +107,13 @@
          <string>12</string>
         </property>
        </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>月</string>
+       </property>
       </widget>
      </item>
      <item>
@@ -173,6 +187,13 @@
       <widget class="QPushButton" name="save_Button">
        <property name="text">
         <string>保存</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="text">
+        <string>更新</string>
        </property>
       </widget>
      </item>

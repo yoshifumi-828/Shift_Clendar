@@ -14,6 +14,7 @@
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
+#include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QSpinBox>
@@ -29,12 +30,15 @@ public:
     QVBoxLayout *verticalLayout;
     QHBoxLayout *horizontalLayout;
     QSpinBox *year_Box;
+    QLabel *label;
     QComboBox *month_Box;
+    QLabel *label_2;
     QComboBox *display_month_Box;
     QTableWidget *tableWidget;
     QHBoxLayout *horizontalLayout_2;
     QPushButton *pushButton;
     QPushButton *save_Button;
+    QPushButton *pushButton_2;
     QPushButton *auto_input_Button;
     QSpacerItem *horizontalSpacer;
 
@@ -60,6 +64,11 @@ public:
 
         horizontalLayout->addWidget(year_Box);
 
+        label = new QLabel(Shift_Calendar);
+        label->setObjectName(QString::fromUtf8("label"));
+
+        horizontalLayout->addWidget(label);
+
         month_Box = new QComboBox(Shift_Calendar);
         month_Box->addItem(QString());
         month_Box->addItem(QString());
@@ -76,6 +85,11 @@ public:
         month_Box->setObjectName(QString::fromUtf8("month_Box"));
 
         horizontalLayout->addWidget(month_Box);
+
+        label_2 = new QLabel(Shift_Calendar);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+
+        horizontalLayout->addWidget(label_2);
 
         display_month_Box = new QComboBox(Shift_Calendar);
         display_month_Box->addItem(QString());
@@ -117,6 +131,11 @@ public:
 
         horizontalLayout_2->addWidget(save_Button);
 
+        pushButton_2 = new QPushButton(Shift_Calendar);
+        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
+
+        horizontalLayout_2->addWidget(pushButton_2);
+
         auto_input_Button = new QPushButton(Shift_Calendar);
         auto_input_Button->setObjectName(QString::fromUtf8("auto_input_Button"));
 
@@ -138,6 +157,7 @@ public:
     void retranslateUi(QWidget *Shift_Calendar)
     {
         Shift_Calendar->setWindowTitle(QCoreApplication::translate("Shift_Calendar", "Widget", nullptr));
+        label->setText(QCoreApplication::translate("Shift_Calendar", "\345\271\264", nullptr));
         month_Box->setItemText(0, QCoreApplication::translate("Shift_Calendar", "1", nullptr));
         month_Box->setItemText(1, QCoreApplication::translate("Shift_Calendar", "2", nullptr));
         month_Box->setItemText(2, QCoreApplication::translate("Shift_Calendar", "3", nullptr));
@@ -151,12 +171,14 @@ public:
         month_Box->setItemText(10, QCoreApplication::translate("Shift_Calendar", "11", nullptr));
         month_Box->setItemText(11, QCoreApplication::translate("Shift_Calendar", "12", nullptr));
 
+        label_2->setText(QCoreApplication::translate("Shift_Calendar", "\346\234\210", nullptr));
         display_month_Box->setItemText(0, QCoreApplication::translate("Shift_Calendar", "\345\211\215\345\215\212", nullptr));
         display_month_Box->setItemText(1, QCoreApplication::translate("Shift_Calendar", "\345\276\214\345\215\212", nullptr));
         display_month_Box->setItemText(2, QCoreApplication::translate("Shift_Calendar", "\345\205\250\344\275\223", nullptr));
 
         pushButton->setText(QCoreApplication::translate("Shift_Calendar", "+", nullptr));
         save_Button->setText(QCoreApplication::translate("Shift_Calendar", "\344\277\235\345\255\230", nullptr));
+        pushButton_2->setText(QCoreApplication::translate("Shift_Calendar", "\346\233\264\346\226\260", nullptr));
         auto_input_Button->setText(QCoreApplication::translate("Shift_Calendar", "\350\207\252\345\213\225\345\205\245\345\212\233", nullptr));
     } // retranslateUi
 

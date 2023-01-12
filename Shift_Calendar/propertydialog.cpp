@@ -20,6 +20,9 @@ PropertyDialog::PropertyDialog(QWidget *parent) :
     shift_time_line[0] = ui->shift_time_line_1;
     shift_time_line[1] = ui->shift_time_line_2;
     shift_time_line[2] = ui->shift_time_line_3;
+    shift_num_box[0] = ui->shift_num_box_1;
+    shift_num_box[1] = ui->shift_num_box_2;
+    shift_num_box[2] = ui->shift_num_box_3;
 }
 
 PropertyDialog::~PropertyDialog()
@@ -41,7 +44,9 @@ void PropertyDialog::get_property(QWidget *parent, struct MEMBER_PROPERTY *prope
     for(int i=0; i<3; i++){
         property->shift_time[i] = shift_time[i]->isChecked();
         property->shift_time_str[i] = shift_time_line[i]->text();
+        property->shift_num[i] = shift_num_box[i]->value();
     }
+
     return;
 }
 

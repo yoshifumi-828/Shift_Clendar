@@ -15,13 +15,14 @@
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QDialogButtonBox>
-#include <QtWidgets/QFormLayout>
 #include <QtWidgets/QFrame>
+#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QSpinBox>
 #include <QtWidgets/QVBoxLayout>
 
 QT_BEGIN_NAMESPACE
@@ -30,16 +31,20 @@ class Ui_PropertyDialog
 {
 public:
     QHBoxLayout *horizontalLayout_4;
-    QFormLayout *formLayout;
+    QGridLayout *gridLayout;
     QLabel *label_4;
-    QLineEdit *shift_time_line_1;
     QCheckBox *shift_time_checkbox_1;
-    QLineEdit *shift_time_line_2;
     QCheckBox *shift_time_checkbox_2;
+    QSpacerItem *verticalSpacer;
+    QLineEdit *shift_time_line_2;
+    QLineEdit *shift_time_line_1;
     QLineEdit *shift_time_line_3;
     QCheckBox *shift_time_checkbox_3;
-    QSpacerItem *verticalSpacer;
     QSpacerItem *horizontalSpacer;
+    QLabel *label_5;
+    QSpinBox *shift_num_box_1;
+    QSpinBox *shift_num_box_2;
+    QSpinBox *shift_num_box_3;
     QFrame *line_3;
     QVBoxLayout *verticalLayout_2;
     QHBoxLayout *horizontalLayout;
@@ -71,24 +76,15 @@ public:
         PropertyDialog->resize(621, 344);
         horizontalLayout_4 = new QHBoxLayout(PropertyDialog);
         horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
-        formLayout = new QFormLayout();
-        formLayout->setObjectName(QString::fromUtf8("formLayout"));
+        gridLayout = new QGridLayout();
+        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         label_4 = new QLabel(PropertyDialog);
         label_4->setObjectName(QString::fromUtf8("label_4"));
         QFont font;
         font.setPointSize(14);
         label_4->setFont(font);
 
-        formLayout->setWidget(0, QFormLayout::LabelRole, label_4);
-
-        shift_time_line_1 = new QLineEdit(PropertyDialog);
-        shift_time_line_1->setObjectName(QString::fromUtf8("shift_time_line_1"));
-        QFont font1;
-        font1.setPointSize(11);
-        shift_time_line_1->setFont(font1);
-        shift_time_line_1->setFrame(false);
-
-        formLayout->setWidget(1, QFormLayout::LabelRole, shift_time_line_1);
+        gridLayout->addWidget(label_4, 0, 0, 1, 1);
 
         shift_time_checkbox_1 = new QCheckBox(PropertyDialog);
         shift_time_checkbox_1->setObjectName(QString::fromUtf8("shift_time_checkbox_1"));
@@ -101,14 +97,7 @@ public:
         shift_time_checkbox_1->setTabletTracking(false);
         shift_time_checkbox_1->setIconSize(QSize(15, 15));
 
-        formLayout->setWidget(1, QFormLayout::FieldRole, shift_time_checkbox_1);
-
-        shift_time_line_2 = new QLineEdit(PropertyDialog);
-        shift_time_line_2->setObjectName(QString::fromUtf8("shift_time_line_2"));
-        shift_time_line_2->setFont(font1);
-        shift_time_line_2->setFrame(false);
-
-        formLayout->setWidget(2, QFormLayout::LabelRole, shift_time_line_2);
+        gridLayout->addWidget(shift_time_checkbox_1, 1, 1, 1, 1);
 
         shift_time_checkbox_2 = new QCheckBox(PropertyDialog);
         shift_time_checkbox_2->setObjectName(QString::fromUtf8("shift_time_checkbox_2"));
@@ -118,14 +107,34 @@ public:
         shift_time_checkbox_2->setTabletTracking(false);
         shift_time_checkbox_2->setIconSize(QSize(15, 15));
 
-        formLayout->setWidget(2, QFormLayout::FieldRole, shift_time_checkbox_2);
+        gridLayout->addWidget(shift_time_checkbox_2, 2, 1, 1, 1);
+
+        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        gridLayout->addItem(verticalSpacer, 4, 0, 1, 1);
+
+        shift_time_line_2 = new QLineEdit(PropertyDialog);
+        shift_time_line_2->setObjectName(QString::fromUtf8("shift_time_line_2"));
+        QFont font1;
+        font1.setPointSize(11);
+        shift_time_line_2->setFont(font1);
+        shift_time_line_2->setFrame(false);
+
+        gridLayout->addWidget(shift_time_line_2, 2, 0, 1, 1);
+
+        shift_time_line_1 = new QLineEdit(PropertyDialog);
+        shift_time_line_1->setObjectName(QString::fromUtf8("shift_time_line_1"));
+        shift_time_line_1->setFont(font1);
+        shift_time_line_1->setFrame(false);
+
+        gridLayout->addWidget(shift_time_line_1, 1, 0, 1, 1);
 
         shift_time_line_3 = new QLineEdit(PropertyDialog);
         shift_time_line_3->setObjectName(QString::fromUtf8("shift_time_line_3"));
         shift_time_line_3->setFont(font1);
         shift_time_line_3->setFrame(false);
 
-        formLayout->setWidget(3, QFormLayout::LabelRole, shift_time_line_3);
+        gridLayout->addWidget(shift_time_line_3, 3, 0, 1, 1);
 
         shift_time_checkbox_3 = new QCheckBox(PropertyDialog);
         shift_time_checkbox_3->setObjectName(QString::fromUtf8("shift_time_checkbox_3"));
@@ -135,18 +144,35 @@ public:
         shift_time_checkbox_3->setTabletTracking(false);
         shift_time_checkbox_3->setIconSize(QSize(15, 15));
 
-        formLayout->setWidget(3, QFormLayout::FieldRole, shift_time_checkbox_3);
-
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        formLayout->setItem(4, QFormLayout::LabelRole, verticalSpacer);
+        gridLayout->addWidget(shift_time_checkbox_3, 3, 1, 1, 1);
 
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-        formLayout->setItem(0, QFormLayout::FieldRole, horizontalSpacer);
+        gridLayout->addItem(horizontalSpacer, 0, 1, 1, 1);
+
+        label_5 = new QLabel(PropertyDialog);
+        label_5->setObjectName(QString::fromUtf8("label_5"));
+
+        gridLayout->addWidget(label_5, 0, 2, 1, 1);
+
+        shift_num_box_1 = new QSpinBox(PropertyDialog);
+        shift_num_box_1->setObjectName(QString::fromUtf8("shift_num_box_1"));
+        shift_num_box_1->setValue(3);
+
+        gridLayout->addWidget(shift_num_box_1, 1, 2, 1, 1);
+
+        shift_num_box_2 = new QSpinBox(PropertyDialog);
+        shift_num_box_2->setObjectName(QString::fromUtf8("shift_num_box_2"));
+
+        gridLayout->addWidget(shift_num_box_2, 2, 2, 1, 1);
+
+        shift_num_box_3 = new QSpinBox(PropertyDialog);
+        shift_num_box_3->setObjectName(QString::fromUtf8("shift_num_box_3"));
+
+        gridLayout->addWidget(shift_num_box_3, 3, 2, 1, 1);
 
 
-        horizontalLayout_4->addLayout(formLayout);
+        horizontalLayout_4->addLayout(gridLayout);
 
         line_3 = new QFrame(PropertyDialog);
         line_3->setObjectName(QString::fromUtf8("line_3"));
@@ -298,12 +324,13 @@ public:
     {
         PropertyDialog->setWindowTitle(QCoreApplication::translate("PropertyDialog", "Dialog", nullptr));
         label_4->setText(QCoreApplication::translate("PropertyDialog", "\345\213\244\345\213\231\346\231\202\351\226\223", nullptr));
-        shift_time_line_1->setText(QCoreApplication::translate("PropertyDialog", "18", nullptr));
         shift_time_checkbox_1->setText(QString());
-        shift_time_line_2->setText(QCoreApplication::translate("PropertyDialog", "-\346\234\252\345\256\237\350\243\205-", nullptr));
         shift_time_checkbox_2->setText(QString());
+        shift_time_line_2->setText(QCoreApplication::translate("PropertyDialog", "-\346\234\252\345\256\237\350\243\205-", nullptr));
+        shift_time_line_1->setText(QCoreApplication::translate("PropertyDialog", "18", nullptr));
         shift_time_line_3->setText(QCoreApplication::translate("PropertyDialog", "-\346\234\252\345\256\237\350\243\205-", nullptr));
         shift_time_checkbox_3->setText(QString());
+        label_5->setText(QCoreApplication::translate("PropertyDialog", "\345\277\205\350\246\201\344\272\272\346\225\260", nullptr));
         label->setText(QCoreApplication::translate("PropertyDialog", "\345\220\215\345\211\215", nullptr));
         label_2->setText(QCoreApplication::translate("PropertyDialog", "\345\233\272\345\256\232\343\201\247\345\205\245\343\202\214\343\202\213\346\233\234\346\227\245", nullptr));
         thu_check->setText(QCoreApplication::translate("PropertyDialog", "\346\234\250", nullptr));

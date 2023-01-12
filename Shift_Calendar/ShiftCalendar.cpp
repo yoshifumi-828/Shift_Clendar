@@ -44,8 +44,11 @@ QString Shift_Calendar::shift_int2str(int shift_int)
         case NON_SHIFT_DAY: // 入れるがシフトの無い日.
             return tr("/");
             break;
+        case SHIFT_LINE_1: // シフト時間1なら.
+            return shift_list[0];
+            break;
         default:        // その他(未定 or シフトの時間).
-            return shift_list[0];  // 現在は一旦シフト時間入力欄一番上の"18"を返すようにしている.
+            return QString::number(shift_int);  // 現在はそのまま数値を返す.
             break;
     }
 }
@@ -137,7 +140,7 @@ void Shift_Calendar::update_calendar()
         i++;
     }
 
-    // ======== 曜日行の表示 ========
+    // ======== 合計行の表示 ========
     i = 0;
     QTableWidgetItem *newItem = new QTableWidgetItem(tr("合計")); // 合計ラベルの表示
     ui->tableWidget->setItem(row_count, i++, newItem);
@@ -146,7 +149,6 @@ void Shift_Calendar::update_calendar()
         ui->tableWidget->setItem(row_count, i, newItem);  // 人がいるときに前半から後半にするとここでエラー
         i++;
     }
-
 }
 
 // シフトに入っている人をカウントする関数
@@ -156,28 +158,29 @@ int Shift_Calendar::count_num_shift(int column)
     int num = 0;
     for(int i=1; i<row_count; i++){ // 曜日行は飛ばすため1から
         QString cell_text = ui->tableWidget->item(i, column)->text();
+        bool is_num;
+        cell_text.toInt(&is_num);
         // shift_listのどれかと同じ文字列が入っていればカウントする.
-        if(cell_text == shift_list[0] || cell_text == shift_list[1] || cell_text == shift_list[2]){
+        if(cell_text == shift_list[0] || cell_text == shift_list[1] || cell_text == shift_list[2] || is_num){
             num++;
         }
-//        qDebug() << ui->tableWidget->item(i, column)->column();
     }
-
     return num;
 }
 
+// 年入力欄に変更があった時.
 void Shift_Calendar::on_year_Box_valueChanged(int arg1)
 {
     update_calendar();
 }
 
-
+// 月入力欄に変更があった時.
 void Shift_Calendar::on_month_Box_currentIndexChanged(int index)
 {
     update_calendar();
 }
 
-
+// 表示範囲に変更があった時.
 void Shift_Calendar::on_display_month_Box_currentIndexChanged(int index)
 {
     update_calendar();
@@ -239,6 +242,9 @@ void Shift_Calendar::update_property()
     ST_memdata_list[current_num].property = pro;
     set_holiday_list(current_num+1);
     header_vertical[current_num+1] = pro.name;  // 行ラベルも書き換える.
+    for(int i=0; i<3; i++){
+        shift_num[i] = pro.shift_num[i];
+    }
     update_calendar();
 }
 
@@ -252,16 +258,19 @@ void Shift_Calendar::add_line()
     row_count++;                        // 1行追加.
     header_vertical.append(pro.name);   // 追加した行のラベルにダイアログから取得した名前を設定.
     // 1列目にプロパティ用のボタンを設定.
-    button = new QPushButton();
+    QPushButton *button = new QPushButton();
     button->setText("詳細");
     connect(button, SIGNAL(clicked()), this, SLOT(on_propertyButton_clicked()));    // デストラクタでdeleteされているか確認する.
-    // 個人データを保存
+    // 構造体リストに個人データを保存
     struct member_data memdata;
     memdata.pro_button = button;
     memdata.property = pro;
     ST_memdata_list.append(memdata);
     set_holiday_list(row_count-1);
     update_calendar();
+    for(int i=0; i<3; i++){
+        shift_num[i] = pro.shift_num[i];
+    }
 }
 
 
@@ -269,21 +278,71 @@ void Shift_Calendar::add_line()
 // shift配列の中身を変える
 void Shift_Calendar::on_auto_input_Button_clicked()
 {
-    int i = 0;
-    // シフトの自動入力を行う.
-    // 上から順に人の行のみ確認する(0行目は曜日,最終行は人数なのでスキップ).
-    while(++i < row_count){
-        int j = 0;
-        // i行目について表示上のすべての日についてシフトを確認.
-        while(j < 31){
-            // 今は完全ランダム.
-            if(ST_memdata_list[i-1].shift[j] == NON_SHIFT_DAY){
-                if(QRandomGenerator::system()->generate() % 2 == 1){
-                    ST_memdata_list[i-1].shift[j] = SHIFT_LINE_1;
+//    int i = 0;
+//    // シフトの自動入力を行う.
+//    // 上から順に人の行のみ確認する(0行目は曜日,最終行は人数なのでスキップ).
+//    while(++i < row_count){
+//        int j = 0;
+//        // i行目について表示上のすべての日についてシフトを確認.
+//        while(j < 31){
+//            // 今は完全ランダム.
+//            if(ST_memdata_list[i-1].shift[j] == NON_SHIFT_DAY){
+//                if(QRandomGenerator::system()->generate() % 2 == 1){
+//                    ST_memdata_list[i-1].shift[j] = SHIFT_LINE_1;
+//                }
+//            }
+//            j++;
+//        }
+//    }
+    int day_idx = 0;
+    while(day_idx < 31){
+        // ==== もし入れる人数が必須人数以下ならば入れる人は全員出勤にする. ====
+        // 入れる人の人数を数える.
+        int i = 0;
+        int can_shift_num = 0;          // 休暇日の人数
+        int shift_on_num[3] = {0};      // 各シフト時間別の入っている人数
+        while(++i < row_count){ // 出勤できる人数を数える.
+            int shift_time = ST_memdata_list[i-1].shift[day_idx];
+            if(shift_time != HORYDAY){
+                switch (shift_time) {
+                    case SHIFT_LINE_1:
+                        shift_on_num[0]++;
+                        break;
+                    case SHIFT_LINE_2:
+                        shift_on_num[1]++;
+                        break;
+                    case SHIFT_LINE_3:
+                        shift_on_num[2]++;
+                        break;
+                    case NON_SHIFT_DAY:
+                        can_shift_num++;
+                        break;
+                    default:
+                        break;
                 }
             }
-            j++;
         }
+        /// 以下勤務時間1のみ実装
+        // 人数が足りない時は休暇希望の人以外出勤.
+        if(can_shift_num + shift_on_num[0] <= shift_num[0]){
+            i = 0;
+            while(++i < row_count){
+                if(ST_memdata_list[i-1].shift[day_idx] != HORYDAY){
+                    ST_memdata_list[i-1].shift[day_idx] = SHIFT_LINE_1;
+                }
+            }
+        }else{  // 人数が足りている場合は差分だけ完全ランダムに出勤.
+            // 無限ループかも
+//            int dif_num = shift_num[0] - shift_on_num[0];
+//            for(int k=0; k < dif_num;){
+//                int rand = QRandomGenerator::system()->generate()%dif_num;
+//                if(ST_memdata_list[rand].shift[day_idx] == NON_SHIFT_DAY){
+//                    ST_memdata_list[rand].shift[day_idx] = SHIFT_LINE_1;
+//                    k++;
+//                }
+//            }
+        }
+        day_idx++;
     }
     update_calendar();
 }
@@ -331,3 +390,33 @@ void Shift_Calendar::set_holiday_list(int row)
     }
 
 }
+
+// 更新ボタンが押された時.
+// 現在表示されている内容に内部データを書き換える(shift配列の中身のみ).
+void Shift_Calendar::on_pushButton_2_clicked()
+{
+    for (int row = 1; row < row_count; row++){
+        for(int column = 1; column < ui->tableWidget->columnCount(); column++){
+            // 列ラベルから日付を取得.
+            int num_day = ui->tableWidget->horizontalHeaderItem(column)->text().toInt();
+            bool is_num;
+            // 該当セルの表示テキストを取得.
+            QString cell_text = ui->tableWidget->item(row, column)->text();
+            int shift_time = cell_text.toInt(&is_num);
+            // 表示テキストに合わせて内部データ(shift[])を変更.
+            if(is_num){ // 数字ならそのまま数値を入れる.
+                ST_memdata_list[row-1].shift[num_day-1] = shift_time;
+                return;
+            }
+            // 休暇日ならその文字列に対応した数値を入れる.
+            if(cell_text == "/"){
+                ST_memdata_list[row-1].shift[num_day-1] = NON_SHIFT_DAY;
+            }else if(cell_text == "//"){
+                ST_memdata_list[row-1].shift[num_day-1] = HORYDAY;
+            }
+        }
+    }
+    // 代入が間違ってないことを確認するための再度画面更新.
+    update_calendar();
+}
+

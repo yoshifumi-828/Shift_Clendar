@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QSpinBox>
 
 namespace Ui {
 class PropertyDialog;
@@ -22,6 +23,7 @@ public:
         QString holiday = "";
         bool shift_time[3] = {false};
         QString shift_time_str[3] = {""};
+        int shift_num[3] = {0};
     };
     void get_property(QWidget *parent=nullptr, struct MEMBER_PROPERTY *property = nullptr);  // 親のウィジェットで使用するための名前取得関数(後で構造体取得にするかも).
 
@@ -36,6 +38,7 @@ private:
     QCheckBox *check_list[7];
     QCheckBox *shift_time[3];
     QLineEdit *shift_time_line[3];
+    QSpinBox *shift_num_box[3];
 };
 
 #endif // PROPERTYDIALOG_H
