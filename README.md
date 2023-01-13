@@ -15,8 +15,8 @@ Build&Run MinGW 64-bit
 
 
 ## 個人用メモ
-issue_name : #[n]_[目的](TBA)<br>
+issue_name : #n\_目的(TBA)<br>
 TBA : 予定<br>
 TBD : 未定<br>
-Branch_name : #[n](_[名前])_[目的]_<br>
+Branch_name : #n(\_名前)\_目的<br>
 個人開発なのでブランチは無し
