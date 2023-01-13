@@ -14,7 +14,7 @@ Build&Run MinGW 64-bit
 ・自動入力ボタンを押してシフトの自動入力を行う。
 
 
-## 個人用メモ
+### 個人用メモ
 issue_name : #n\_目的(TBA)<br>
 TBA : 予定<br>
 TBD : 未定<br>
