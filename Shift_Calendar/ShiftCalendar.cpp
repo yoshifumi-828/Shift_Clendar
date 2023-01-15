@@ -12,7 +12,7 @@ Shift_Calendar::Shift_Calendar(QWidget *parent)
     , ui(new Ui::Shift_Calendar)
 {
     ui->setupUi(this);
-    // 縦軸ラベル(日付ラベル).
+    // 縦軸ラベル(日付ラベル)の初期化.
     header_horizon << "";
     header_horizon_latter << "";
     for (int i=1; i <= 31; i++){
@@ -21,12 +21,15 @@ Shift_Calendar::Shift_Calendar(QWidget *parent)
             header_horizon_latter << QString::number(i);
         }
     }
-    // 横軸ラベル(名前ラベル).
+    // 横軸ラベル(名前ラベル)の初期化.
     header_vertical.append("");
     row_count = 1;
+    // その他の初期化
+    load_data();
     update_calendar();
     // シグナル.
     connect(dialog, SIGNAL(okButtonClicked()), this, SLOT(return_dialog()));
+    connect(dialog, SIGNAL(deleteButtonClicked()), this, SLOT(delete_line()));
 }
 
 Shift_Calendar::~Shift_Calendar()
@@ -38,16 +41,17 @@ Shift_Calendar::~Shift_Calendar()
 QString Shift_Calendar::shift_int2str(int shift_int)
 {
     switch (shift_int) {
-        case HORYDAY:   // 休み希望日.
+        case HORYDAY:       // 休み希望日.
             return tr("//");
-            break;
         case NON_SHIFT_DAY: // 入れるがシフトの無い日.
             return tr("/");
-            break;
-        case SHIFT_LINE_1: // シフト時間1なら.
-            return shift_list[0];
-            break;
-        default:        // その他(未定 or シフトの時間).
+        case SHIFT_LINE_1:  // シフト時間1なら.
+            return shift_time_str[0];
+        case SHIFT_LINE_2:  // シフト時間2なら.
+            return shift_time_str[1];
+        case SHIFT_LINE_3:  // シフト時間3なら.
+            return shift_time_str[2];
+        default:            // その他(未定 or シフトの時間).
             return QString::number(shift_int);  // 現在はそのまま数値を返す.
             break;
     }
@@ -96,6 +100,7 @@ void Shift_Calendar::display_header()
 // ウィジェット上部のBoxから年と月を取得してその月の日数分の列を持つ表に更新.
 void Shift_Calendar::update_calendar()
 {
+//    ui->tableWidget->clear(); // これをするとセットしたウィジェットの元まで消される.
     display_header();   // ヘッダーの表示.
     int year = ui->year_Box->value();
     QString month_string = ui->month_Box->currentText();
@@ -154,14 +159,14 @@ void Shift_Calendar::update_calendar()
 // シフトに入っている人をカウントする関数
 int Shift_Calendar::count_num_shift(int column)
 {
-    // column列についてshift_list[0-2]と同じ文字列の数をカウントして返す
+    // column列についてshift_time_str[0-2]と同じ文字列の数をカウントして返す
     int num = 0;
     for(int i=1; i<row_count; i++){ // 曜日行は飛ばすため1から
         QString cell_text = ui->tableWidget->item(i, column)->text();
         bool is_num;
         cell_text.toInt(&is_num);
-        // shift_listのどれかと同じ文字列が入っていればカウントする.
-        if(cell_text == shift_list[0] || cell_text == shift_list[1] || cell_text == shift_list[2] || is_num){
+        // shift_time_strのどれかと同じ文字列 or 数値 が入っていればカウントする.
+        if(cell_text == shift_time_str[0] || cell_text == shift_time_str[1] || cell_text == shift_time_str[2] || is_num){
             num++;
         }
     }
@@ -191,6 +196,7 @@ void Shift_Calendar::on_display_month_Box_currentIndexChanged(int index)
 void Shift_Calendar::on_pushButton_clicked()
 {
     dialog_flag = PLUS_BUTTON;
+    dialog->set_property(shift_num, shift_time_str);
     dialog->show();
     dialog->activateWindow();
 }
@@ -200,6 +206,8 @@ void Shift_Calendar::on_pushButton_clicked()
 void Shift_Calendar::on_propertyButton_clicked()
 {
     dialog_flag = PROPERTY_BUTTON;
+    int row_num = ui->tableWidget->currentRow();
+    dialog->set_property(shift_num, shift_time_str, &ST_memdata_list[row_num-1].property);
     dialog->show();
     dialog->activateWindow();
 }
@@ -210,23 +218,18 @@ void Shift_Calendar::return_dialog()
     switch(dialog_flag){
         case PROPERTY_BUTTON:   // プロパティボタンから戻った際
             update_property();
-            update_shift_list();
+            for(int i=0; i<3; i++){
+                shift_time_str[i] = ST_memdata_list[ui->tableWidget->currentRow()-1].property.shift_time_str[i];
+            }
             break;
         case PLUS_BUTTON:       // プラスボタンから戻った際
             add_line();
-            update_shift_list();
+            for(int i=0; i<3; i++){
+                shift_time_str[i] = ST_memdata_list.last().property.shift_time_str[i];
+            }
             break;
         default:
             break;
-    }
-}
-
-// (dialogから戻った際共通して処理する関数)
-// dialogのシフト時間に入力している文字を取得する.
-void Shift_Calendar::update_shift_list()
-{
-    for(int i=0; i<3; i++){
-        shift_list[i] = ST_memdata_list.last().property.shift_time_str[i];
     }
 }
 
@@ -235,7 +238,7 @@ void Shift_Calendar::update_property()
 {
     // 更新されたプロパティを取得.
     struct PropertyDialog::MEMBER_PROPERTY pro;
-    dialog->get_property(this, &pro);
+    dialog->get_property(&pro);
     // 押されたボタンの行のデータを書き換える.
     // 行番号と書き換えるデータを渡して行番号と構造体リストの両方を更新する関数にしたほうが良いかも
     int current_num = ui->tableWidget->currentRow() - 1;
@@ -249,27 +252,45 @@ void Shift_Calendar::update_property()
 }
 
 // 1行追加する処理(+ボタンからダイアログをOKで終了した時に呼ばれる).
-void Shift_Calendar::add_line()
+void Shift_Calendar::add_line(int *shift)
 {
     // ダイアログに入力したデータを構造体で取得.
     struct PropertyDialog::MEMBER_PROPERTY pro;
-    dialog->get_property(this, &pro);
+    dialog->get_property(&pro);
     // 取得したデータをにもとづいて表示を更新
     row_count++;                        // 1行追加.
     header_vertical.append(pro.name);   // 追加した行のラベルにダイアログから取得した名前を設定.
     // 1列目にプロパティ用のボタンを設定.
     QPushButton *button = new QPushButton();
     button->setText("詳細");
-    connect(button, SIGNAL(clicked()), this, SLOT(on_propertyButton_clicked()));    // デストラクタでdeleteされているか確認する.
-    // 構造体リストに個人データを保存
+    connect(button, SIGNAL(clicked()), this, SLOT(on_propertyButton_clicked()));
+    // 構造体に個人データを保存.
     struct member_data memdata;
     memdata.pro_button = button;
     memdata.property = pro;
+    for(int i=0; i<31; i++){
+        memdata.shift[i] = ((shift != nullptr) ? shift[i] : NON_SHIFT_DAY);
+    }
+    for(int i=0; i<3; i++){
+        shift_num[i] = pro.shift_num[i];
+    }
+    // 構造体をリストに保存.
     ST_memdata_list.append(memdata);
     set_holiday_list(row_count-1);
     update_calendar();
-    for(int i=0; i<3; i++){
-        shift_num[i] = pro.shift_num[i];
+}
+
+// 1行削除する処理
+void Shift_Calendar::delete_line()
+{
+    dialog->close();
+    if(dialog_flag == PROPERTY_BUTTON){ // 詳細ボタンのダイアログから削除ボタンを押した時だけ.
+        int row = ui->tableWidget->currentRow();
+        ST_memdata_list.remove(row-1);
+        header_vertical.remove(row);
+        row_count--;
+        ui->tableWidget->removeRow(row);
+        update_calendar();
     }
 }
 
@@ -278,22 +299,6 @@ void Shift_Calendar::add_line()
 // shift配列の中身を変える
 void Shift_Calendar::on_auto_input_Button_clicked()
 {
-//    int i = 0;
-//    // シフトの自動入力を行う.
-//    // 上から順に人の行のみ確認する(0行目は曜日,最終行は人数なのでスキップ).
-//    while(++i < row_count){
-//        int j = 0;
-//        // i行目について表示上のすべての日についてシフトを確認.
-//        while(j < 31){
-//            // 今は完全ランダム.
-//            if(ST_memdata_list[i-1].shift[j] == NON_SHIFT_DAY){
-//                if(QRandomGenerator::system()->generate() % 2 == 1){
-//                    ST_memdata_list[i-1].shift[j] = SHIFT_LINE_1;
-//                }
-//            }
-//            j++;
-//        }
-//    }
     int day_idx = 0;
     while(day_idx < 31){
         // ==== もし入れる人数が必須人数以下ならば入れる人は全員出勤にする. ====
@@ -303,23 +308,21 @@ void Shift_Calendar::on_auto_input_Button_clicked()
         int shift_on_num[3] = {0};      // 各シフト時間別の入っている人数
         while(++i < row_count){ // 出勤できる人数を数える.
             int shift_time = ST_memdata_list[i-1].shift[day_idx];
-            if(shift_time != HORYDAY){
-                switch (shift_time) {
-                    case SHIFT_LINE_1:
-                        shift_on_num[0]++;
-                        break;
-                    case SHIFT_LINE_2:
-                        shift_on_num[1]++;
-                        break;
-                    case SHIFT_LINE_3:
-                        shift_on_num[2]++;
-                        break;
-                    case NON_SHIFT_DAY:
-                        can_shift_num++;
-                        break;
-                    default:
-                        break;
-                }
+            switch (shift_time) {
+                case SHIFT_LINE_1:
+                    shift_on_num[0]++;
+                    break;
+                case SHIFT_LINE_2:
+                    shift_on_num[1]++;
+                    break;
+                case SHIFT_LINE_3:
+                    shift_on_num[2]++;
+                    break;
+                case NON_SHIFT_DAY:
+                    can_shift_num++;
+                    break;
+                default:
+                    break;
             }
         }
         /// 以下勤務時間1のみ実装
@@ -357,14 +360,13 @@ void Shift_Calendar::set_holiday_list(int row)
     // ==== 休み希望文字列から対象の日付を取得 ====
     QString holiday = pro.holiday;
     bool not_shift[31] = {false};
-    int i = 0;
-    int idx = 0;
+    int idx = 0;    // 文字から読み取った数値
     // 数字以外の文字で区切り、入力された日付を記録.
-    while(i++ < holiday.length()){
-        if(holiday[i-1].isNumber()){
-            idx = idx*10 + holiday[i-1].digitValue();
+    for(int i = 0; i < holiday.length(); i++){
+        if(holiday[i].isNumber()){
+            idx = idx*10 + holiday[i].digitValue();
         }else{
-            if(idx <= 31){
+            if(1 <= idx && idx <= 31){
                 not_shift[idx-1] = true;
             }else{
                 error_msg("over month day/ in set_holiday_list()");
@@ -384,8 +386,6 @@ void Shift_Calendar::set_holiday_list(int row)
     for(int i=0; i < 31; i++){
         if(not_shift[i]){
             ST_memdata_list[row-1].shift[i] = HORYDAY;
-        }else{
-            ST_memdata_list[row-1].shift[i] = NON_SHIFT_DAY;
         }
     }
 
@@ -393,30 +393,185 @@ void Shift_Calendar::set_holiday_list(int row)
 
 // 更新ボタンが押された時.
 // 現在表示されている内容に内部データを書き換える(shift配列の中身のみ).
-void Shift_Calendar::on_pushButton_2_clicked()
+void Shift_Calendar::on_update_button_clicked()
 {
     for (int row = 1; row < row_count; row++){
         for(int column = 1; column < ui->tableWidget->columnCount(); column++){
             // 列ラベルから日付を取得.
             int num_day = ui->tableWidget->horizontalHeaderItem(column)->text().toInt();
-            bool is_num;
             // 該当セルの表示テキストを取得.
             QString cell_text = ui->tableWidget->item(row, column)->text();
+            // ==== 表示テキストに合わせて内部データ(shift[])を変更 ====
+            // 数字ならそのまま数値を入れる.
+            bool is_num;
             int shift_time = cell_text.toInt(&is_num);
-            // 表示テキストに合わせて内部データ(shift[])を変更.
-            if(is_num){ // 数字ならそのまま数値を入れる.
+            if(is_num){
                 ST_memdata_list[row-1].shift[num_day-1] = shift_time;
                 return;
             }
-            // 休暇日ならその文字列に対応した数値を入れる.
+            // 文字列ならそれに対応した数値を入れる.定義されていなければ休暇日"/"とする.
             if(cell_text == "/"){
                 ST_memdata_list[row-1].shift[num_day-1] = NON_SHIFT_DAY;
             }else if(cell_text == "//"){
                 ST_memdata_list[row-1].shift[num_day-1] = HORYDAY;
+            }else if(cell_text == shift_time_str[0]){
+                ST_memdata_list[row-1].shift[num_day-1] = SHIFT_LINE_1;
+            }else if(cell_text == shift_time_str[1]){
+                ST_memdata_list[row-1].shift[num_day-1] = SHIFT_LINE_2;
+            }else if(cell_text == shift_time_str[2]){
+                ST_memdata_list[row-1].shift[num_day-1] = SHIFT_LINE_3;
+            }else{
+                ST_memdata_list[row-1].shift[num_day-1] = NON_SHIFT_DAY;    // ここ要考察
             }
         }
     }
     // 代入が間違ってないことを確認するための再度画面更新.
     update_calendar();
+}
+
+// 保存ボタンを押した際の動作.
+// 必要な情報を外部ファイルに保存する.
+/*
+ * 保存データの詳細
+ * ・全体情報(ファイル名:shift_app_maindata)
+ * shift_time_str(QString[3])   シフト時間、空白区切りで
+ * shift_num(int[3])        シフト必要人数、空白区切りで
+ * row_count(int)           登録人数
+ *
+ * ・個人データ(ファイル名:[番号]data) ここの番号はテーブル上に表示される順番と同じ(上から0,1,...)
+ * name(QString)        登録名
+ * go_dow(bool[7])      固定出勤曜日T/F
+ * shift_time(bool[3])  シフト時間の出勤の有無
+ * year month shift[31] 前回保存した際の 年 月 シフト状況　を空白区切りで
+*/
+void Shift_Calendar::save_data()
+{
+    // ディレクトリの確認, 無ければ作成.
+    QDir dir("data");
+    if(!dir.exists()){
+        QDir newdir("");
+        if(!newdir.mkdir("data")){
+            qDebug() << "cant mkdir";
+        }
+    }
+    // 全体で必要な情報の保存
+    QString file_name_whole = "./data/shift_app_maindata";
+    QFile file(file_name_whole);
+    if(!file.open(QIODevice::WriteOnly)) {
+        error_msg("cant file open");
+        return;
+    }
+    QTextStream out(&file);
+    out << shift_time_str[0] << " " << shift_time_str[1] << " " << shift_time_str[2] << "\n";
+    out << shift_num[0] << " " << shift_num[1] << " " << shift_num[2] << "\n";
+    out << row_count-1 << "\n";
+    file.close();
+    // 個人データの保存
+    for(int i=1; i<row_count; i++){
+        QString file_name_per = "./data/" + QString::number(i-1) + "data";
+        QFile file(file_name_per);
+        if(!file.open(QIODevice::WriteOnly)) {
+            error_msg("cant file open");
+            return;
+        }
+        QTextStream out(&file);
+        // 1行目 nameの出力
+        out << ST_memdata_list[i-1].property.name << "\n";
+        // 2行目 go_dowの出力
+        for(int j=0; j<7; j++){
+            out << (ST_memdata_list[i-1].property.go_dow[j] ? 1 : 0);
+        }
+        out << "\n";
+        // 3行目 shift_timeの出力
+        for(int j=0; j<3; j++){
+            out << (ST_memdata_list[i-1].property.shift_time[j] ? 1 : 0);
+        }
+        out << "\n";
+        // 4行目 shift[31]の出力
+        int year = ui->year_Box->value();
+        QString month_string = ui->month_Box->currentText();
+        int month = month_string.toInt();
+        out << year << " " << month;
+        for(int k=0; k<31; k++){
+            out << " " << ST_memdata_list[i-1].shift[k];
+        }
+        out << "\n";
+        file.close();
+    }
+    qDebug() << "success save";
+}
+
+void Shift_Calendar::load_data()
+{
+    // ディレクトリの確認
+    QString strDir = "./data/";
+    QDir dir(strDir);
+    if(!dir.exists()){
+        return;
+    }
+    // ==== 全体情報の読み込み ====
+    QString file_name_whole = "./data/shift_app_maindata";
+    QFile file(file_name_whole);
+    if(!file.open(QIODevice::ReadOnly)) {
+        error_msg("cant file open maindata");
+        return;
+    }
+    QTextStream in(&file);
+    // 1行目 shift_time_strの読み込み.
+    QString read_line = in.readLine();
+    QStringList read_shift_time_str = read_line.split(" ");
+    // 2行目 shift_numの読み込み.
+    read_line = in.readLine();
+    QStringList read_shift_num = read_line.split(" ");
+    // 3行目 登録人数の読み込み.
+    read_line = in.readLine();
+    int num = read_line.toInt();
+    // 読み込んだ情報の登録.
+    for(int i=0; i<3; i++){
+        shift_time_str[i] = read_shift_time_str[i];
+        shift_num[i] = read_shift_num[i].toInt();
+    }
+    file.close();
+    // ==== 個人データの読み込み ====
+    for(int i=0; i<num; i++){
+        QString file_name_per = "./data/" + QString::number(i) + "data";
+        QFile file(file_name_per);
+        if(!file.open(QIODevice::ReadOnly)) {
+            error_msg("cant file open perdata");
+            continue;
+        }
+        QTextStream in(&file);
+        int load_shift[31];
+        struct PropertyDialog::MEMBER_PROPERTY load_pro;
+        // 1行目 nameの読み込み.
+        load_pro.name = in.readLine();
+        // 2行目 go_dowの読み込み.
+        read_line = in.readLine();
+        for(int i=0; i<7; i++){
+            load_pro.go_dow[i] = (read_line[i] == '1' ? true : false);
+        }
+        // 3行目 shift_timeの読み込み.
+        read_line = in.readLine();
+        for(int i=0; i<3; i++){
+            load_pro.shift_time[i] = (read_line[i] == '1' ? true : false);
+        }
+        // 4行目 year month shift[31]の読み込み
+        read_line = in.readLine();
+        QStringList read_shift_line = read_line.split(" ");
+        ui->year_Box->setValue(read_shift_line[0].toInt());
+        ui->month_Box->setCurrentIndex(read_shift_line[1].toInt()-1);
+        for(int i = 2; i < read_shift_line.size(); i++){
+            load_shift[i-2] = read_shift_line[i].toInt();
+        }
+        // 読み込んだ情報の登録.
+        dialog->set_property(shift_num, shift_time_str, &load_pro);
+        add_line(load_shift);
+        file.close();
+    }
+}
+
+void Shift_Calendar::on_save_Button_clicked()
+{
+    save_data();
 }
 

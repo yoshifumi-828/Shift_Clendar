@@ -5,6 +5,7 @@
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QSpinBox>
+#include <QMessageBox>
 
 namespace Ui {
 class PropertyDialog;
@@ -25,13 +26,18 @@ public:
         QString shift_time_str[3] = {""};
         int shift_num[3] = {0};
     };
-    void get_property(QWidget *parent=nullptr, struct MEMBER_PROPERTY *property = nullptr);  // 親のウィジェットで使用するための名前取得関数(後で構造体取得にするかも).
+    bool shift_time_can[3] = {false};
+    void get_property(struct MEMBER_PROPERTY *property = nullptr);  // 親のウィジェットで使用するための名前取得関数(後で構造体取得にするかも).
+    void set_property(int load_shift_num[3], QString load_shift_time_str[3], struct MEMBER_PROPERTY *property = nullptr);
 
 signals:
     void okButtonClicked(); // 親ウィジェットに伝えるシグナル.
+    void deleteButtonClicked();
 
 private slots:
     void on_buttonBox_accepted();   // OKボタンが押された際.
+
+    void on_pushButton_clicked();
 
 private:
     Ui::PropertyDialog *ui;

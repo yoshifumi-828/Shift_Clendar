@@ -38,7 +38,7 @@ public:
     QHBoxLayout *horizontalLayout_2;
     QPushButton *pushButton;
     QPushButton *save_Button;
-    QPushButton *pushButton_2;
+    QPushButton *update_button;
     QPushButton *auto_input_Button;
     QSpacerItem *horizontalSpacer;
 
@@ -131,10 +131,10 @@ public:
 
         horizontalLayout_2->addWidget(save_Button);
 
-        pushButton_2 = new QPushButton(Shift_Calendar);
-        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
+        update_button = new QPushButton(Shift_Calendar);
+        update_button->setObjectName(QString::fromUtf8("update_button"));
 
-        horizontalLayout_2->addWidget(pushButton_2);
+        horizontalLayout_2->addWidget(update_button);
 
         auto_input_Button = new QPushButton(Shift_Calendar);
         auto_input_Button->setObjectName(QString::fromUtf8("auto_input_Button"));
@@ -178,7 +178,7 @@ public:
 
         pushButton->setText(QCoreApplication::translate("Shift_Calendar", "+", nullptr));
         save_Button->setText(QCoreApplication::translate("Shift_Calendar", "\344\277\235\345\255\230", nullptr));
-        pushButton_2->setText(QCoreApplication::translate("Shift_Calendar", "\346\233\264\346\226\260", nullptr));
+        update_button->setText(QCoreApplication::translate("Shift_Calendar", "\346\233\264\346\226\260", nullptr));
         auto_input_Button->setText(QCoreApplication::translate("Shift_Calendar", "\350\207\252\345\213\225\345\205\245\345\212\233", nullptr));
     } // retranslateUi
 
