@@ -6,7 +6,6 @@ Qt Creator / Qt6.2.2<br>
 言語 C++<br>
 Build&Run MinGW 64-bit
 
-## ※開発途中です。機能が完全ではありません。
 
 ## 使用の流れ
 ・上側の入力欄から月を選ぶ<br>
