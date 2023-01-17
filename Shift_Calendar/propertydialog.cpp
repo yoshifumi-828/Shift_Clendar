@@ -47,7 +47,8 @@ void PropertyDialog::get_property(struct MEMBER_PROPERTY *property)
         property->shift_time_str[i] = shift_time_line[i]->text();
         property->shift_num[i] = shift_num_box[i]->value();
     }
-
+    // 固定出勤曜日以外の出勤.
+    property->other_dow = ui->other_dow_check->isChecked();
     return;
 }
 

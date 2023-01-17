@@ -121,6 +121,9 @@ void Shift_Calendar::update_calendar()
         int j = current_day.dayOfWeek();
         // 曜日を1行目に入力.
         QTableWidgetItem *newItem = new QTableWidgetItem(tr("%1").arg(DofW[j-1]));
+        if(j == 7){ // 日曜日だけ赤色に設定
+            newItem->setForeground(QBrush(QColor(255, 0, 0)));
+        }
         ui->tableWidget->setItem(0, i++, newItem);
     }
 
@@ -218,15 +221,19 @@ void Shift_Calendar::return_dialog()
     switch(dialog_flag){
         case PROPERTY_BUTTON:   // プロパティボタンから戻った際
             update_property();
+            set_shift_dow(ui->tableWidget->currentRow());
             for(int i=0; i<3; i++){
                 shift_time_str[i] = ST_memdata_list[ui->tableWidget->currentRow()-1].property.shift_time_str[i];
             }
+            update_calendar();
             break;
         case PLUS_BUTTON:       // プラスボタンから戻った際
             add_line();
+            set_shift_dow(row_count-1);
             for(int i=0; i<3; i++){
                 shift_time_str[i] = ST_memdata_list.last().property.shift_time_str[i];
             }
+            update_calendar();
             break;
         default:
             break;
@@ -328,26 +335,92 @@ void Shift_Calendar::on_auto_input_Button_clicked()
         /// 以下勤務時間1のみ実装
         // 人数が足りない時は休暇希望の人以外出勤.
         if(can_shift_num + shift_on_num[0] <= shift_num[0]){
-            i = 0;
-            while(++i < row_count){
-                if(ST_memdata_list[i-1].shift[day_idx] != HORYDAY){
-                    ST_memdata_list[i-1].shift[day_idx] = SHIFT_LINE_1;
+            for(int i=0; i < row_count-1; i++){
+                if(ST_memdata_list[i].shift[day_idx] != HORYDAY && ST_memdata_list[i].property.shift_time[0]){
+                    ST_memdata_list[i].shift[day_idx] = SHIFT_LINE_1;
                 }
             }
-        }else{  // 人数が足りている場合は差分だけ完全ランダムに出勤.
-            // 無限ループかも
-//            int dif_num = shift_num[0] - shift_on_num[0];
-//            for(int k=0; k < dif_num;){
-//                int rand = QRandomGenerator::system()->generate()%dif_num;
-//                if(ST_memdata_list[rand].shift[day_idx] == NON_SHIFT_DAY){
-//                    ST_memdata_list[rand].shift[day_idx] = SHIFT_LINE_1;
-//                    k++;
-//                }
-//            }
+        }else{  // 人数が足りている場合は差分だけ出勤.
+            int dif_num = shift_num[0] - shift_on_num[0];   // 追加で必要な人数 = 必要人数 - すでに入っている人数.
+            // まず前後の日が休みなら出勤
+            for(int i=0; i<row_count-1; i++){
+                if(0 < day_idx && day_idx < 31-1){
+                    bool tmp1 = ST_memdata_list[i].shift[day_idx-1] == NON_SHIFT_DAY || ST_memdata_list[i].shift[day_idx-1] == HORYDAY;
+                    bool tmp2 = ST_memdata_list[i].shift[day_idx+1] == NON_SHIFT_DAY || ST_memdata_list[i].shift[day_idx+1] == HORYDAY;
+                    if( tmp1 && tmp2){
+                        ST_memdata_list[i].shift[day_idx] = SHIFT_LINE_1;
+                        dif_num--;
+                    }
+                }else if( 0 == day_idx ){
+                    if(ST_memdata_list[i].shift[day_idx+1] == NON_SHIFT_DAY){
+                        ST_memdata_list[i].shift[day_idx] = SHIFT_LINE_1;
+                        dif_num--;
+                    }
+                }else{
+                    if(ST_memdata_list[i].shift[day_idx-1] == NON_SHIFT_DAY){
+                        ST_memdata_list[i].shift[day_idx] = SHIFT_LINE_1;
+                        dif_num--;
+                    }
+                }
+                if(dif_num == 0){
+                    break;
+                }
+            }
+            // 残りは完全ランダム
+            while(0 < dif_num){
+                int rand = QRandomGenerator::system()->generate()%(row_count-1);
+                if(ST_memdata_list[rand].shift[day_idx] == NON_SHIFT_DAY){
+                    ST_memdata_list[rand].shift[day_idx] = SHIFT_LINE_1;
+                    dif_num--;
+                }
+            }
         }
         day_idx++;
     }
     update_calendar();
+}
+
+// シフトの固定出勤曜日が設定されている場合に反映.
+void Shift_Calendar::set_shift_dow(int row)
+{
+    // 年月の取得.
+    int year = ui->year_Box->value();
+    QString month_string = ui->month_Box->currentText();
+    int month = month_string.toInt();
+    // 対象人物のデータ(構造体)を取得.
+    struct PropertyDialog::MEMBER_PROPERTY pro = ST_memdata_list[row-1].property;
+    // ==== 固定出勤曜日が設定されている場合 ====
+    bool is_set_dow = false;
+    for(int i=0; i<7; i++){
+        if(pro.go_dow[i]){
+            is_set_dow = true;
+        }
+    }
+    // 設定されている場合.
+    if(is_set_dow){
+        // 出勤曜日なら出勤を、違うならシフト無し日or休暇日を設定.
+        for(int i=0; i<31; i++){
+            QDate current_day(year, month, i+1);
+            int j = current_day.dayOfWeek();
+            if(pro.go_dow[j-1]){
+                if(pro.shift_time[0]){
+                    ST_memdata_list[row-1].shift[i] = SHIFT_LINE_1;
+                }else if(pro.shift_time[1]){
+                    ST_memdata_list[row-1].shift[i] = SHIFT_LINE_2;
+                }else if(pro.shift_time[2]){
+                    ST_memdata_list[row-1].shift[i] = SHIFT_LINE_3;
+                }else{
+
+                }
+            }else{
+                if(pro.other_dow){
+                    ST_memdata_list[row-1].shift[i] = HORYDAY;
+                }else{
+                    ST_memdata_list[row-1].shift[i] = NON_SHIFT_DAY;
+                }
+            }
+        }
+    }
 }
 
 // 行数をもとに対象人物の休み希望を文字列から取得し、struct member_data内のshift配列に反映させる.

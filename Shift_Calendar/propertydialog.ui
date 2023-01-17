@@ -259,7 +259,7 @@
           <enum>Qt::LeftToRight</enum>
          </property>
          <property name="text">
-          <string>固定で入れる曜日</string>
+          <string>固定出勤曜日</string>
          </property>
          <property name="textFormat">
           <enum>Qt::AutoText</enum>
@@ -273,7 +273,50 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="other_dow_check">
+         <property name="text">
+          <string>原則他の曜日は入らない場合チェック</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QCheckBox" name="mon_check">
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>月</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="tue_check">
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>火</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="wed_check">
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>水</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QCheckBox" name="thu_check">
            <property name="font">
@@ -299,18 +342,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="sun_check">
-           <property name="font">
-            <font>
-             <pointsize>11</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>日</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QCheckBox" name="sat_check">
            <property name="font">
             <font>
@@ -323,38 +354,14 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="wed_check">
+          <widget class="QCheckBox" name="sun_check">
            <property name="font">
             <font>
              <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
-            <string>水</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="mon_check">
-           <property name="font">
-            <font>
-             <pointsize>11</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>月</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="tue_check">
-           <property name="font">
-            <font>
-             <pointsize>11</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>火</string>
+            <string>日</string>
            </property>
           </widget>
          </item>

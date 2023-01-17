@@ -73,5 +73,6 @@ private:
     void load_data();                   // 必要なデータを外部ファイルに保存
     void save_data();                   // 必要なデータを起動時に外部ファイルから読み込み
     void add_line(int *shift = nullptr);// 行を追加する関数.
+    void set_shift_dow(int row);        // シフトの固定出勤曜日が設定されている場合に反映.
 };
 #endif // SHIFTCALENDER_H

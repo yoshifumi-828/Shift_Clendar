@@ -53,14 +53,15 @@ public:
     QVBoxLayout *verticalLayout;
     QFrame *line;
     QLabel *label_2;
+    QCheckBox *other_dow_check;
     QHBoxLayout *horizontalLayout_2;
-    QCheckBox *thu_check;
-    QCheckBox *fri_check;
-    QCheckBox *sun_check;
-    QCheckBox *sat_check;
-    QCheckBox *wed_check;
     QCheckBox *mon_check;
     QCheckBox *tue_check;
+    QCheckBox *wed_check;
+    QCheckBox *thu_check;
+    QCheckBox *fri_check;
+    QCheckBox *sat_check;
+    QCheckBox *sun_check;
     QFrame *line_2;
     QHBoxLayout *horizontalLayout_3;
     QLabel *label_3;
@@ -219,8 +220,31 @@ public:
 
         verticalLayout->addWidget(label_2);
 
+        other_dow_check = new QCheckBox(PropertyDialog);
+        other_dow_check->setObjectName(QString::fromUtf8("other_dow_check"));
+
+        verticalLayout->addWidget(other_dow_check);
+
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        mon_check = new QCheckBox(PropertyDialog);
+        mon_check->setObjectName(QString::fromUtf8("mon_check"));
+        mon_check->setFont(font1);
+
+        horizontalLayout_2->addWidget(mon_check);
+
+        tue_check = new QCheckBox(PropertyDialog);
+        tue_check->setObjectName(QString::fromUtf8("tue_check"));
+        tue_check->setFont(font1);
+
+        horizontalLayout_2->addWidget(tue_check);
+
+        wed_check = new QCheckBox(PropertyDialog);
+        wed_check->setObjectName(QString::fromUtf8("wed_check"));
+        wed_check->setFont(font1);
+
+        horizontalLayout_2->addWidget(wed_check);
+
         thu_check = new QCheckBox(PropertyDialog);
         thu_check->setObjectName(QString::fromUtf8("thu_check"));
         thu_check->setFont(font1);
@@ -233,35 +257,17 @@ public:
 
         horizontalLayout_2->addWidget(fri_check);
 
-        sun_check = new QCheckBox(PropertyDialog);
-        sun_check->setObjectName(QString::fromUtf8("sun_check"));
-        sun_check->setFont(font1);
-
-        horizontalLayout_2->addWidget(sun_check);
-
         sat_check = new QCheckBox(PropertyDialog);
         sat_check->setObjectName(QString::fromUtf8("sat_check"));
         sat_check->setFont(font1);
 
         horizontalLayout_2->addWidget(sat_check);
 
-        wed_check = new QCheckBox(PropertyDialog);
-        wed_check->setObjectName(QString::fromUtf8("wed_check"));
-        wed_check->setFont(font1);
+        sun_check = new QCheckBox(PropertyDialog);
+        sun_check->setObjectName(QString::fromUtf8("sun_check"));
+        sun_check->setFont(font1);
 
-        horizontalLayout_2->addWidget(wed_check);
-
-        mon_check = new QCheckBox(PropertyDialog);
-        mon_check->setObjectName(QString::fromUtf8("mon_check"));
-        mon_check->setFont(font1);
-
-        horizontalLayout_2->addWidget(mon_check);
-
-        tue_check = new QCheckBox(PropertyDialog);
-        tue_check->setObjectName(QString::fromUtf8("tue_check"));
-        tue_check->setFont(font1);
-
-        horizontalLayout_2->addWidget(tue_check);
+        horizontalLayout_2->addWidget(sun_check);
 
 
         verticalLayout->addLayout(horizontalLayout_2);
@@ -332,14 +338,15 @@ public:
         shift_time_checkbox_3->setText(QString());
         label_5->setText(QCoreApplication::translate("PropertyDialog", "\345\277\205\350\246\201\344\272\272\346\225\260", nullptr));
         label->setText(QCoreApplication::translate("PropertyDialog", "\345\220\215\345\211\215", nullptr));
-        label_2->setText(QCoreApplication::translate("PropertyDialog", "\345\233\272\345\256\232\343\201\247\345\205\245\343\202\214\343\202\213\346\233\234\346\227\245", nullptr));
-        thu_check->setText(QCoreApplication::translate("PropertyDialog", "\346\234\250", nullptr));
-        fri_check->setText(QCoreApplication::translate("PropertyDialog", "\351\207\221", nullptr));
-        sun_check->setText(QCoreApplication::translate("PropertyDialog", "\346\227\245", nullptr));
-        sat_check->setText(QCoreApplication::translate("PropertyDialog", "\345\234\237", nullptr));
-        wed_check->setText(QCoreApplication::translate("PropertyDialog", "\346\260\264", nullptr));
+        label_2->setText(QCoreApplication::translate("PropertyDialog", "\345\233\272\345\256\232\345\207\272\345\213\244\346\233\234\346\227\245", nullptr));
+        other_dow_check->setText(QCoreApplication::translate("PropertyDialog", "\345\216\237\345\211\207\344\273\226\343\201\256\346\233\234\346\227\245\343\201\257\345\205\245\343\202\211\343\201\252\343\201\204\345\240\264\345\220\210\343\203\201\343\202\247\343\203\203\343\202\257", nullptr));
         mon_check->setText(QCoreApplication::translate("PropertyDialog", "\346\234\210", nullptr));
         tue_check->setText(QCoreApplication::translate("PropertyDialog", "\347\201\253", nullptr));
+        wed_check->setText(QCoreApplication::translate("PropertyDialog", "\346\260\264", nullptr));
+        thu_check->setText(QCoreApplication::translate("PropertyDialog", "\346\234\250", nullptr));
+        fri_check->setText(QCoreApplication::translate("PropertyDialog", "\351\207\221", nullptr));
+        sat_check->setText(QCoreApplication::translate("PropertyDialog", "\345\234\237", nullptr));
+        sun_check->setText(QCoreApplication::translate("PropertyDialog", "\346\227\245", nullptr));
         label_3->setText(QCoreApplication::translate("PropertyDialog", "\344\274\221\346\232\207\345\270\214\346\234\233\346\227\245", nullptr));
         pushButton->setText(QCoreApplication::translate("PropertyDialog", "\345\211\212\351\231\244", nullptr));
     } // retranslateUi

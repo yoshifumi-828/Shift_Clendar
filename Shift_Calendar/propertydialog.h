@@ -20,11 +20,12 @@ public:
     ~PropertyDialog();
     struct MEMBER_PROPERTY {    // プロパティで保存するデータの構造体.
         QString name = "";
-        bool go_dow[7] = {false};
-        QString holiday = "";
-        bool shift_time[3] = {false};
-        QString shift_time_str[3] = {""};
-        int shift_num[3] = {0};
+        bool shift_time[3] = {false};       // どのシフト時間に入るか.
+        bool go_dow[7] = {false};           // 固定出勤曜日.
+        bool other_dow = true;              // 固定出勤曜日以外の曜日に入らないか.
+        QString holiday = "";               // 休暇希望日.
+        QString shift_time_str[3] = {""};   // シフト時間の文字列.
+        int shift_num[3] = {0};             // シフトの必要人数.
     };
     bool shift_time_can[3] = {false};
     void get_property(struct MEMBER_PROPERTY *property = nullptr);  // 親のウィジェットで使用するための名前取得関数(後で構造体取得にするかも).
