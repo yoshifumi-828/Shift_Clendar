@@ -14,15 +14,18 @@ PropertyDialog::PropertyDialog(QWidget *parent) :
     check_list[4] = ui->fri_check;
     check_list[5] = ui->sat_check;
     check_list[6] = ui->sun_check;
-    shift_time[0] = ui->shift_time_checkbox_1;
-    shift_time[1] = ui->shift_time_checkbox_2;
-    shift_time[2] = ui->shift_time_checkbox_3;
-    shift_time_line[0] = ui->shift_time_line_1;
-    shift_time_line[1] = ui->shift_time_line_2;
-    shift_time_line[2] = ui->shift_time_line_3;
-    shift_num_box[0] = ui->shift_num_box_1;
-    shift_num_box[1] = ui->shift_num_box_2;
-    shift_num_box[2] = ui->shift_num_box_3;
+    shift_time = ui->shift_time_checkbox_1;
+//    shift_time[0] = ui->shift_time_checkbox_1;
+//    shift_time[1] = ui->shift_time_checkbox_2;
+//    shift_time[2] = ui->shift_time_checkbox_3;
+    shift_time_line = ui->shift_time_line_1;
+//    shift_time_line[0] = ui->shift_time_line_1;
+//    shift_time_line[1] = ui->shift_time_line_2;
+//    shift_time_line[2] = ui->shift_time_line_3;
+    shift_num_box = ui->shift_num_box_1;
+//    shift_num_box[0] = ui->shift_num_box_1;
+//    shift_num_box[1] = ui->shift_num_box_2;
+//    shift_num_box[2] = ui->shift_num_box_3;
 }
 
 PropertyDialog::~PropertyDialog()
@@ -42,18 +45,21 @@ void PropertyDialog::get_property(struct MEMBER_PROPERTY *property)
     // 休暇希望日の取得.
     property->holiday = ui->holiday_line->text();
     // シフト時間の取得.
-    for(int i=0; i<3; i++){
-        property->shift_time[i] = shift_time[i]->isChecked();
-        property->shift_time_str[i] = shift_time_line[i]->text();
-        property->shift_num[i] = shift_num_box[i]->value();
-    }
+    property->shift_time = shift_time->isChecked();
+    property->shift_time_str = shift_time_line->text();
+    property->shift_num = shift_num_box->value();
+//    for(int i=0; i<3; i++){
+//        property->shift_time[i] = shift_time[i]->isChecked();
+//        property->shift_time_str[i] = shift_time_line[i]->text();
+//        property->shift_num[i] = shift_num_box[i]->value();
+//    }
     // 固定出勤曜日以外の出勤.
     property->other_dow = ui->other_dow_check->isChecked();
     return;
 }
 
 // dialogを表示する際の初期入力を設定する.
-void PropertyDialog::set_property(int load_shift_num[3],QString load_shift_time_str[3],struct MEMBER_PROPERTY *property)
+void PropertyDialog::set_property(int load_shift_num,QString load_shift_time_str,struct MEMBER_PROPERTY *property)
 {
     if(property != nullptr){
         // 名前
@@ -66,13 +72,18 @@ void PropertyDialog::set_property(int load_shift_num[3],QString load_shift_time_
         ui->holiday_line->setText(property->holiday);
     }
     // シフト時間の設定.
-    for(int i=0; i<3; i++){
-        if(property != nullptr){
-            shift_time[i]->setChecked(property->shift_time[i]);
-        }
-        shift_time_line[i]->setText(load_shift_time_str[i]);
-        shift_num_box[i]->setValue(load_shift_num[i]);
+    if(property != nullptr){
+        shift_time->setChecked(property->shift_time);
     }
+    shift_time_line->setText(load_shift_time_str);
+    shift_num_box->setValue(load_shift_num);
+//    for(int i=0; i<3; i++){
+//        if(property != nullptr){
+//            shift_time[i]->setChecked(property->shift_time[i]);
+//        }
+//        shift_time_line[i]->setText(load_shift_time_str[i]);
+//        shift_num_box[i]->setValue(load_shift_num[i]);
+//    }
 }
 
 void PropertyDialog::on_buttonBox_accepted()

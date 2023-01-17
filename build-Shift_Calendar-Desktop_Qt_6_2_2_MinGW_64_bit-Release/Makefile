@@ -291,7 +291,6 @@ Makefile: ../Shift_Calendar/Shift_Calendar.pro ../../6.2.2/mingw_64/mkspecs/win3
 		../../6.2.2/mingw_64/mkspecs/features/qt_config.prf \
 		../../6.2.2/mingw_64/mkspecs/win32-g++/qmake.conf \
 		../../6.2.2/mingw_64/mkspecs/features/spec_post.prf \
-		.qmake.stash \
 		../../6.2.2/mingw_64/mkspecs/features/exclusive_builds.prf \
 		../../6.2.2/mingw_64/mkspecs/features/toolchain.prf \
 		../../6.2.2/mingw_64/mkspecs/features/default_pre.prf \
@@ -321,6 +320,7 @@ Makefile: ../Shift_Calendar/Shift_Calendar.pro ../../6.2.2/mingw_64/mkspecs/win3
 		../../6.2.2/mingw_64/lib/Qt6Gui.prl \
 		../../6.2.2/mingw_64/lib/Qt6Core.prl \
 		../../6.2.2/mingw_64/lib/Qt6EntryPoint.prl \
+		.qmake.stash \
 		../../6.2.2/mingw_64/mkspecs/features/build_pass.prf
 	$(QMAKE) -o Makefile ..\Shift_Calendar\Shift_Calendar.pro -spec win32-g++ "CONFIG+=qtquickcompiler"
 ../../6.2.2/mingw_64/mkspecs/features/spec_pre.prf:
@@ -544,7 +544,6 @@ Makefile: ../Shift_Calendar/Shift_Calendar.pro ../../6.2.2/mingw_64/mkspecs/win3
 ../../6.2.2/mingw_64/mkspecs/features/qt_config.prf:
 ../../6.2.2/mingw_64/mkspecs/win32-g++/qmake.conf:
 ../../6.2.2/mingw_64/mkspecs/features/spec_post.prf:
-.qmake.stash:
 ../../6.2.2/mingw_64/mkspecs/features/exclusive_builds.prf:
 ../../6.2.2/mingw_64/mkspecs/features/toolchain.prf:
 ../../6.2.2/mingw_64/mkspecs/features/default_pre.prf:
@@ -574,6 +573,7 @@ Makefile: ../Shift_Calendar/Shift_Calendar.pro ../../6.2.2/mingw_64/mkspecs/win3
 ../../6.2.2/mingw_64/lib/Qt6Gui.prl:
 ../../6.2.2/mingw_64/lib/Qt6Core.prl:
 ../../6.2.2/mingw_64/lib/Qt6EntryPoint.prl:
+.qmake.stash:
 ../../6.2.2/mingw_64/mkspecs/features/build_pass.prf:
 qmake: FORCE
 	@$(QMAKE) -o Makefile ..\Shift_Calendar\Shift_Calendar.pro -spec win32-g++ "CONFIG+=qtquickcompiler"

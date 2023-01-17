@@ -46,11 +46,11 @@ QString Shift_Calendar::shift_int2str(int shift_int)
         case NON_SHIFT_DAY: // 入れるがシフトの無い日.
             return tr("/");
         case SHIFT_LINE_1:  // シフト時間1なら.
-            return shift_time_str[0];
-        case SHIFT_LINE_2:  // シフト時間2なら.
-            return shift_time_str[1];
-        case SHIFT_LINE_3:  // シフト時間3なら.
-            return shift_time_str[2];
+            return shift_time_str;
+//        case SHIFT_LINE_2:  // シフト時間2なら.
+//            return shift_time_str[1];
+//        case SHIFT_LINE_3:  // シフト時間3なら.
+//            return shift_time_str[2];
         default:            // その他(未定 or シフトの時間).
             return QString::number(shift_int);  // 現在はそのまま数値を返す.
             break;
@@ -169,9 +169,12 @@ int Shift_Calendar::count_num_shift(int column)
         bool is_num;
         cell_text.toInt(&is_num);
         // shift_time_strのどれかと同じ文字列 or 数値 が入っていればカウントする.
-        if(cell_text == shift_time_str[0] || cell_text == shift_time_str[1] || cell_text == shift_time_str[2] || is_num){
-            num++;
-        }
+//        if(cell_text == shift_time_str[0] || cell_text == shift_time_str[1] || cell_text == shift_time_str[2] || is_num){
+//            num++;
+//        }
+          if(cell_text == shift_time_str){
+              num++;
+          }
     }
     return num;
 }
@@ -222,17 +225,19 @@ void Shift_Calendar::return_dialog()
         case PROPERTY_BUTTON:   // プロパティボタンから戻った際
             update_property();
             set_shift_dow(ui->tableWidget->currentRow());
-            for(int i=0; i<3; i++){
-                shift_time_str[i] = ST_memdata_list[ui->tableWidget->currentRow()-1].property.shift_time_str[i];
-            }
+//            for(int i=0; i<3; i++){
+//                shift_time_str[i] = ST_memdata_list[ui->tableWidget->currentRow()-1].property.shift_time_str[i];
+//            }
+            shift_time_str = ST_memdata_list[ui->tableWidget->currentRow()-1].property.shift_time_str;
             update_calendar();
             break;
         case PLUS_BUTTON:       // プラスボタンから戻った際
             add_line();
             set_shift_dow(row_count-1);
-            for(int i=0; i<3; i++){
-                shift_time_str[i] = ST_memdata_list.last().property.shift_time_str[i];
-            }
+//            for(int i=0; i<3; i++){
+//                shift_time_str[i] = ST_memdata_list.last().property.shift_time_str[i];
+//            }
+            shift_time_str = ST_memdata_list.last().property.shift_time_str;
             update_calendar();
             break;
         default:
@@ -253,7 +258,8 @@ void Shift_Calendar::update_property()
     set_holiday_list(current_num+1);
     header_vertical[current_num+1] = pro.name;  // 行ラベルも書き換える.
     for(int i=0; i<3; i++){
-        shift_num[i] = pro.shift_num[i];
+        shift_num = pro.shift_num;
+//        shift_num[i] = pro.shift_num[i];
     }
     update_calendar();
 }
@@ -278,9 +284,10 @@ void Shift_Calendar::add_line(int *shift)
     for(int i=0; i<31; i++){
         memdata.shift[i] = ((shift != nullptr) ? shift[i] : NON_SHIFT_DAY);
     }
-    for(int i=0; i<3; i++){
-        shift_num[i] = pro.shift_num[i];
-    }
+//    for(int i=0; i<3; i++){
+//        shift_num[i] = pro.shift_num[i];
+//    }
+    shift_num = pro.shift_num;
     // 構造体をリストに保存.
     ST_memdata_list.append(memdata);
     set_holiday_list(row_count-1);
@@ -319,12 +326,12 @@ void Shift_Calendar::on_auto_input_Button_clicked()
                 case SHIFT_LINE_1:
                     shift_on_num[0]++;
                     break;
-                case SHIFT_LINE_2:
-                    shift_on_num[1]++;
-                    break;
-                case SHIFT_LINE_3:
-                    shift_on_num[2]++;
-                    break;
+//                case SHIFT_LINE_2:
+//                    shift_on_num[1]++;
+//                    break;
+//                case SHIFT_LINE_3:
+//                    shift_on_num[2]++;
+//                    break;
                 case NON_SHIFT_DAY:
                     can_shift_num++;
                     break;
@@ -334,36 +341,42 @@ void Shift_Calendar::on_auto_input_Button_clicked()
         }
         /// 以下勤務時間1のみ実装
         // 人数が足りない時は休暇希望の人以外出勤.
-        if(can_shift_num + shift_on_num[0] <= shift_num[0]){
+        if(can_shift_num + shift_on_num[0] <= shift_num){
             for(int i=0; i < row_count-1; i++){
-                if(ST_memdata_list[i].shift[day_idx] != HORYDAY && ST_memdata_list[i].property.shift_time[0]){
+                if(ST_memdata_list[i].shift[day_idx] != HORYDAY && ST_memdata_list[i].property.shift_time){
                     ST_memdata_list[i].shift[day_idx] = SHIFT_LINE_1;
                 }
             }
         }else{  // 人数が足りている場合は差分だけ出勤.
-            int dif_num = shift_num[0] - shift_on_num[0];   // 追加で必要な人数 = 必要人数 - すでに入っている人数.
+            int dif_num = shift_num - shift_on_num[0];   // 追加で必要な人数 = 必要人数 - すでに入っている人数.
             // まず前後の日が休みなら出勤
             for(int i=0; i<row_count-1; i++){
+                if(dif_num == 0){
+                    break;
+                }
                 if(0 < day_idx && day_idx < 31-1){
                     bool tmp1 = ST_memdata_list[i].shift[day_idx-1] == NON_SHIFT_DAY || ST_memdata_list[i].shift[day_idx-1] == HORYDAY;
                     bool tmp2 = ST_memdata_list[i].shift[day_idx+1] == NON_SHIFT_DAY || ST_memdata_list[i].shift[day_idx+1] == HORYDAY;
                     if( tmp1 && tmp2){
-                        ST_memdata_list[i].shift[day_idx] = SHIFT_LINE_1;
-                        dif_num--;
+                        if(ST_memdata_list[i].shift[day_idx] != SHIFT_LINE_1){
+                            ST_memdata_list[i].shift[day_idx] = SHIFT_LINE_1;
+                            dif_num--;
+                        }
                     }
                 }else if( 0 == day_idx ){
                     if(ST_memdata_list[i].shift[day_idx+1] == NON_SHIFT_DAY){
-                        ST_memdata_list[i].shift[day_idx] = SHIFT_LINE_1;
-                        dif_num--;
+                        if(ST_memdata_list[i].shift[day_idx] != SHIFT_LINE_1){
+                            ST_memdata_list[i].shift[day_idx] = SHIFT_LINE_1;
+                            dif_num--;
+                        }
                     }
                 }else{
                     if(ST_memdata_list[i].shift[day_idx-1] == NON_SHIFT_DAY){
-                        ST_memdata_list[i].shift[day_idx] = SHIFT_LINE_1;
-                        dif_num--;
+                        if(ST_memdata_list[i].shift[day_idx] != SHIFT_LINE_1){
+                            ST_memdata_list[i].shift[day_idx] = SHIFT_LINE_1;
+                            dif_num--;
+                        }
                     }
-                }
-                if(dif_num == 0){
-                    break;
                 }
             }
             // 残りは完全ランダム
@@ -403,15 +416,13 @@ void Shift_Calendar::set_shift_dow(int row)
             QDate current_day(year, month, i+1);
             int j = current_day.dayOfWeek();
             if(pro.go_dow[j-1]){
-                if(pro.shift_time[0]){
+                if(pro.shift_time){
                     ST_memdata_list[row-1].shift[i] = SHIFT_LINE_1;
-                }else if(pro.shift_time[1]){
-                    ST_memdata_list[row-1].shift[i] = SHIFT_LINE_2;
-                }else if(pro.shift_time[2]){
-                    ST_memdata_list[row-1].shift[i] = SHIFT_LINE_3;
-                }else{
-
-                }
+//                }else if(pro.shift_time[1]){
+//                    ST_memdata_list[row-1].shift[i] = SHIFT_LINE_2;
+//                }else if(pro.shift_time[2]){
+//                    ST_memdata_list[row-1].shift[i] = SHIFT_LINE_3;
+                }else{}
             }else{
                 if(pro.other_dow){
                     ST_memdata_list[row-1].shift[i] = HORYDAY;
@@ -489,10 +500,10 @@ void Shift_Calendar::on_update_button_clicked()
                 ST_memdata_list[row-1].shift[num_day-1] = HORYDAY;
             }else if(cell_text == shift_time_str[0]){
                 ST_memdata_list[row-1].shift[num_day-1] = SHIFT_LINE_1;
-            }else if(cell_text == shift_time_str[1]){
-                ST_memdata_list[row-1].shift[num_day-1] = SHIFT_LINE_2;
-            }else if(cell_text == shift_time_str[2]){
-                ST_memdata_list[row-1].shift[num_day-1] = SHIFT_LINE_3;
+//            }else if(cell_text == shift_time_str[1]){
+//                ST_memdata_list[row-1].shift[num_day-1] = SHIFT_LINE_2;
+//            }else if(cell_text == shift_time_str[2]){
+//                ST_memdata_list[row-1].shift[num_day-1] = SHIFT_LINE_3;
             }else{
                 ST_memdata_list[row-1].shift[num_day-1] = NON_SHIFT_DAY;    // ここ要考察
             }
@@ -535,8 +546,10 @@ void Shift_Calendar::save_data()
         return;
     }
     QTextStream out(&file);
-    out << shift_time_str[0] << " " << shift_time_str[1] << " " << shift_time_str[2] << "\n";
-    out << shift_num[0] << " " << shift_num[1] << " " << shift_num[2] << "\n";
+//    out << shift_time_str[0] << " " << shift_time_str[1] << " " << shift_time_str[2] << "\n";
+    out << shift_time_str << "\n";
+//    out << shift_num[0] << " " << shift_num[1] << " " << shift_num[2] << "\n";
+    out << shift_num << "\n";
     out << row_count-1 << "\n";
     file.close();
     // 個人データの保存
@@ -556,9 +569,10 @@ void Shift_Calendar::save_data()
         }
         out << "\n";
         // 3行目 shift_timeの出力
-        for(int j=0; j<3; j++){
-            out << (ST_memdata_list[i-1].property.shift_time[j] ? 1 : 0);
-        }
+//        for(int j=0; j<3; j++){
+//            out << (ST_memdata_list[i-1].property.shift_time[j] ? 1 : 0);
+//        }
+        out << (ST_memdata_list[i-1].property.shift_time ? 1 : 0);
         out << "\n";
         // 4行目 shift[31]の出力
         int year = ui->year_Box->value();
@@ -600,10 +614,12 @@ void Shift_Calendar::load_data()
     read_line = in.readLine();
     int num = read_line.toInt();
     // 読み込んだ情報の登録.
-    for(int i=0; i<3; i++){
-        shift_time_str[i] = read_shift_time_str[i];
-        shift_num[i] = read_shift_num[i].toInt();
-    }
+//    for(int i=0; i<3; i++){
+//        shift_time_str[i] = read_shift_time_str[i];
+//        shift_num[i] = read_shift_num[i].toInt();
+//    }
+    shift_time_str = read_shift_time_str.first();
+    shift_num = read_shift_num.first().toInt();
     file.close();
     // ==== 個人データの読み込み ====
     for(int i=0; i<num; i++){
@@ -625,9 +641,10 @@ void Shift_Calendar::load_data()
         }
         // 3行目 shift_timeの読み込み.
         read_line = in.readLine();
-        for(int i=0; i<3; i++){
-            load_pro.shift_time[i] = (read_line[i] == '1' ? true : false);
-        }
+//        for(int i=0; i<3; i++){
+//            load_pro.shift_time[i] = (read_line[i] == '1' ? true : false);
+//        }
+        load_pro.shift_time = (read_line == '1' ? true : false);
         // 4行目 year month shift[31]の読み込み
         read_line = in.readLine();
         QStringList read_shift_line = read_line.split(" ");

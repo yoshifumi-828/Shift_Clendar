@@ -15,8 +15,8 @@
 #define HORYDAY -1          // シフトに入れない日.
 #define NON_SHIFT_DAY -2    // シフトに入れるが休みの日.
 #define SHIFT_LINE_1 -11    //  dialogでのシフト時間入力欄1
-#define SHIFT_LINE_2 -12    //  dialogでのシフト時間入力欄2
-#define SHIFT_LINE_3 -13    //  dialogでのシフト時間入力欄3
+//#define SHIFT_LINE_2 -12    //  dialogでのシフト時間入力欄2
+//#define SHIFT_LINE_3 -13    //  dialogでのシフト時間入力欄3
 #define PLUS_BUTTON 0
 #define PROPERTY_BUTTON 1
 
@@ -61,8 +61,10 @@ private:
     QStringList header_vertical;        // 行のラベルを保持する文字列リスト.
     PropertyDialog *dialog = new PropertyDialog;    // プロパティ入力ダイアログ.
     QVector<member_data> ST_memdata_list;           // 個人データの構造体リスト.
-    QString shift_time_str[3] = {"18", "-未実装-", "-未実装-"};  // シフトの基本勤務時間(dialog左の入力欄)の文字列.
-    int shift_num[3] = {3, 0, 0};       // シフトの各勤務時間における必要人数.
+    QString shift_time_str = "18";      // シフトの基本勤務時間(dialog左の入力欄)の文字列.
+    int shift_num = 3;                  // シフトの各勤務時間における必要人数.
+//    QString shift_time_str[3] = {"18", "-未実装-", "-未実装-"};  // シフトの基本勤務時間(dialog左の入力欄)の文字列.
+//    int shift_num[3] = {3, 0, 0};       // シフトの各勤務時間における必要人数.
     // ==== 関数 ====
     void display_header();              // ヘッダーを表示する関数.
     void update_calendar();             // カレンダーの表示を更新する関数.
