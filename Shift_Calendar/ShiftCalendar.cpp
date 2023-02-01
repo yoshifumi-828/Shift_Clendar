@@ -336,6 +336,9 @@ void Shift_Calendar::on_auto_input_Button_clicked()
                     can_shift_num++;
                     break;
                 default:
+                    if(0 <= shift_time && shift_time <= 24){
+                        shift_on_num[0]++;
+                    }
                     break;
             }
         }
@@ -351,28 +354,32 @@ void Shift_Calendar::on_auto_input_Button_clicked()
             int dif_num = shift_num - shift_on_num[0];   // 追加で必要な人数 = 必要人数 - すでに入っている人数.
             // まず前後の日が休みなら出勤
             for(int i=0; i<row_count-1; i++){
-                if(dif_num == 0){
+                if(dif_num <= 0){   // 途中で人数が集まれば終了
                     break;
                 }
-                if(0 < day_idx && day_idx < 31-1){
-                    bool tmp1 = ST_memdata_list[i].shift[day_idx-1] == NON_SHIFT_DAY || ST_memdata_list[i].shift[day_idx-1] == HORYDAY;
-                    bool tmp2 = ST_memdata_list[i].shift[day_idx+1] == NON_SHIFT_DAY || ST_memdata_list[i].shift[day_idx+1] == HORYDAY;
+
+                int *that_day_shift = &ST_memdata_list[i].shift[day_idx];
+                int *yestar_day_shift = &ST_memdata_list[i].shift[day_idx-1];
+                int *next_day_shift = &ST_memdata_list[i].shift[day_idx+1];
+                if(0 < day_idx && day_idx < 31-1){  // 月の初日と最終日以外.
+                    bool tmp1 = *yestar_day_shift == NON_SHIFT_DAY || *yestar_day_shift == HORYDAY; // 前日が休みならtrue
+                    bool tmp2 = *next_day_shift == NON_SHIFT_DAY || *next_day_shift == HORYDAY; // 翌日が休みならtrue
                     if( tmp1 && tmp2){
-                        if(ST_memdata_list[i].shift[day_idx] != SHIFT_LINE_1){
-                            ST_memdata_list[i].shift[day_idx] = SHIFT_LINE_1;
+                        if(*that_day_shift != SHIFT_LINE_1 && *that_day_shift != HORYDAY){  // 当日が出勤日でも休暇希望日でも無ければ出勤.
+                            *that_day_shift = SHIFT_LINE_1;
                             dif_num--;
                         }
                     }
-                }else if( 0 == day_idx ){
-                    if(ST_memdata_list[i].shift[day_idx+1] == NON_SHIFT_DAY){
-                        if(ST_memdata_list[i].shift[day_idx] != SHIFT_LINE_1){
-                            ST_memdata_list[i].shift[day_idx] = SHIFT_LINE_1;
+                }else if( 0 == day_idx ){   // 月の初日
+                    if(*next_day_shift == NON_SHIFT_DAY){ // 翌日が出勤日で無ければ
+                        if(*that_day_shift != SHIFT_LINE_1 && *that_day_shift != HORYDAY){  // 当日が出勤日でも休暇希望日でも無ければ出勤.
+                            *that_day_shift = SHIFT_LINE_1;
                             dif_num--;
                         }
                     }
-                }else{
-                    if(ST_memdata_list[i].shift[day_idx-1] == NON_SHIFT_DAY){
-                        if(ST_memdata_list[i].shift[day_idx] != SHIFT_LINE_1){
+                }else{  // 月の最終日
+                    if(*yestar_day_shift == NON_SHIFT_DAY){
+                        if(*that_day_shift != SHIFT_LINE_1 && *that_day_shift != HORYDAY){  // 当日が出勤日でも休暇希望日でも無ければ出勤.
                             ST_memdata_list[i].shift[day_idx] = SHIFT_LINE_1;
                             dif_num--;
                         }
@@ -470,6 +477,11 @@ void Shift_Calendar::set_holiday_list(int row)
     for(int i=0; i < 31; i++){
         if(not_shift[i]){
             ST_memdata_list[row-1].shift[i] = HORYDAY;
+        }else{
+            // すでに休暇希望日(//)だったが変更後休暇希望日では無い場合.
+            if(ST_memdata_list[row-1].shift[i] == HORYDAY){
+                ST_memdata_list[row-1].shift[i] = NON_SHIFT_DAY;
+            }
         }
     }
 
@@ -491,7 +503,7 @@ void Shift_Calendar::on_update_button_clicked()
             int shift_time = cell_text.toInt(&is_num);
             if(is_num){
                 ST_memdata_list[row-1].shift[num_day-1] = shift_time;
-                return;
+                continue;
             }
             // 文字列ならそれに対応した数値を入れる.定義されていなければ休暇日"/"とする.
             if(cell_text == "/"){
